@@ -1,0 +1,141 @@
+http://localhost:9200
+
+-s
+--connect-timeout 10
+
+index = notes
+doc_type = note
+
+--
+# End of global scope
+
+--
+# Node list
+GET /_cat/nodes?v
+
+
+--
+# Health
+GET /_cat/health?v
+
+--
+# Create Index
+PUT /:index/?pretty
+
+
+--
+# Create Notes
+PUT /:index/:doc_type/1?pretty
+{
+  "title": "The world is beautiful",
+  "body": "Remember to smell the flowers",
+  "tags": [
+    "motivational",
+    "quote"
+  ]
+}
+
+--
+
+PUT /:index/:doc_type/2?pretty
+{
+  "title": "Spend time with the kids",
+  "body": "The kids are little only for so long, use this time wisely",
+  "tags": [
+    "motivational",
+    "parenting",
+    "quote"
+  ]
+}
+
+
+--
+
+PUT /:index/:doc_type/3?pretty
+{
+  "title": "Under Pressure",
+  "body": "
+Mmm num ba de\n
+Dum bum ba be\n
+Doo buh dum ba beh beh\n
+Pressure pushing down on me\n
+Pressing down on you, no man ask for\n
+Under pressure that burns a building down\n
+Splits a family in two\n
+Puts people on streets\n
+Um ba ba be\n
+Um ba ba be\n
+De day da\n
+Ee day da, that's okay\n
+It's the terror of knowing what the world is about\n
+Watching some good friends screaming\n
+Let me out!\n
+Pray tomorrow gets me higher\n
+Pressure on people, people on streets\n
+Day day de mm hm\n
+Da da da ba ba\n
+Okay\n
+Chipping around, kick my brains around the floor\n
+These are the days it never rains but it pours\n
+Ee do ba be\n
+Ee da ba ba ba\n
+Um bo bo\n
+Be lap\n
+People on streets\n
+Ee da de da de\n
+People on streets\n
+Ee da de da de da de da\n
+It's the terror of knowing what the world is about\n
+Watching some good friends screaming\n
+'Let me out'\n
+Pray tomorrow gets me higher, high\n
+Pressure on people, people on streets\n
+Turned away from it all like a blind man\n
+Sat on a fence but it don't work\n
+Keep coming up with love but it's so slashed and torn\n
+Why, why, why?\n
+Love, love, love, love, love\n
+Insanity laughs under pressure we're breaking\n
+Can't we give ourselves one more chance?\n
+Why can't we give love that one more chance?\n
+Why can't we give love, give love, give love, give love\n
+Give love, give love, give love, give love, give love?\n
+'Cause love's such an old fashioned word\n
+And love dares you to care for\n
+The people on the edge of the night\n
+And love (people on streets) dares you to change our way of\n
+Caring about ourselves\n
+This is our last dance\n
+This is our last dance\n
+This is ourselves under pressure\n
+Under pressure\n
+Pressure\n
+",
+  "tags": [
+    "motivational",
+    "parenting",
+    "quote"
+  ]
+}
+
+--
+# Search
+POST /_search?pretty
+{
+  "query": {
+    "match": {
+      "body": "Pressure"
+    }
+  },
+  "highlight": {
+    "fields": {
+      "body": {
+        "boundary_max_scan": 1,
+        "boundary_scanner": "word",
+        "number_of_fragments": 0,
+        "pre_tags": "<span class=search-highlight>",
+        "post_tags": "</span>"
+      }
+    }
+  }
+}
