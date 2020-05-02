@@ -10,6 +10,10 @@ doc_type = note
 # End of global scope
 
 --
+# Index list
+GET /_cat/indices?v&pretty
+
+--
 # Node list
 GET /_cat/nodes?v
 
@@ -21,6 +25,11 @@ GET /_cat/health?v
 --
 # Create Index
 PUT /:index/?pretty
+
+
+--
+# DELETE Index
+DELETE /customers/?pretty
 
 
 --
@@ -139,3 +148,306 @@ POST /_search?pretty
     }
   }
 }
+
+--
+# Bulk insert
+Content-Type: application/x-ndjson
+POST /people/person/_bulk?pretty&refresh
+{"index": {}}
+{"name": "Danny Boy", "age": 3}
+{"index": {}}
+{"name": "Mujju Boy", "age": 5}
+{"index": {}}
+{"name": "Yayya Man", "age": 35}
+
+--
+# Search
+GET /people/_search?q=name:Boy&pretty&from=1&size=10&sort=age:desc&explain=true
+
+--
+# Search match all
+Content-Type: application/json
+GET /notes/_search?pretty
+{
+  "query": {"match_all": {}}
+}
+
+--
+# Search match all
+Content-Type: application/json
+GET /notes/_search?pretty
+{
+  "query": {"match_all": {}},
+  "sort": { "age": {"order": "desc"} },
+  "size": 30
+}
+
+--
+# Search
+GET /notes/_search?pretty
+{
+  "query": {
+    "term": {"title": "kids"}
+  }
+}
+
+--
+# Search
+GET /notes/_search?pretty
+{
+  "query": {
+    "term": {"age": 5}
+  }
+}
+
+--
+# Search
+GET /notes/_search?pretty
+{
+  "query": {
+    "term": { "body": "pushing" }
+  },
+  "_source": ["title", "body"]
+}
+
+--
+# Search Pluck from source
+GET /notes/_search?pretty
+{
+  "query": {
+    "term": { "body": "pushing" }
+  },
+  "_source": "ti*"
+}
+
+--
+# Search Pluck from source
+GET /notes/_search?pretty
+{
+  "query": {
+    "match": {
+      "body": "pushing"
+    }
+  }
+}
+
+--
+# Search or
+GET /notes/_search?pretty
+{
+  "query": {
+    "match": {
+      "name": {
+        "query": "mujju danny",
+        "operator": "or"
+      }
+    }
+  }
+}
+
+--
+# Search and
+GET /notes/_search?pretty
+{
+  "query": {
+    "match": {
+      "title": {
+        "query": "Under Pressure",
+        "operator": "and"
+      }
+    }
+  }
+}
+
+--
+# Bulk insert
+POST /customers/customer/_bulk?pretty&refresh
+@customers_full.json
+
+--
+# Search and
+GET /customers/_search?pretty
+{
+  "query": {
+    "match": {
+      "name": {
+        "query": "webster"
+      }
+    }
+  }
+}
+
+--
+# Search and
+GET /customers/_search?pretty
+{
+  "query": {
+    "match": {
+      "name": {
+        "query": "frank norris",
+        "operator": "or"
+      }
+    }
+  }
+}
+
+
+--
+# Search and
+GET /customers/_search?pretty
+{
+  "query": {
+    "match": {
+      "street": {
+        "query": "tompkins place"
+      }
+    }
+  }
+}
+
+
+--
+# Search and
+GET /customers/_search?pretty
+{
+  "query": {
+    "match_phrase": {
+      "street": {
+        "query": "tompkins place"
+      }
+    }
+  }
+}
+
+--
+# Search and
+GET /customers/_search?pretty
+{
+  "query": {
+    "match_phrase_prefix": {
+      "name": "ma"
+    }
+  }
+}
+
+--
+# Search and
+GET /customers/_search?pretty
+{
+  "query": {
+    "match_phrase_prefix": {
+      "street": "clymer st"
+    }
+  }
+}
+
+--
+# Search and must
+GET /customers/_search?pretty
+{
+  "query": {
+    "bool": {
+    "must": [
+      {"match": {  "street": "ditmas" }},
+      {"match": {  "street": "avenue" }}
+    ]
+    }
+  }
+}
+
+
+--
+# Search and must
+GET /customers/_search?pretty
+{
+  "query": {
+    "bool": {
+    "must_not": [
+      {"match": {  "street": "ditmas" }},
+      {"match": {  "street": "avenue" }}
+    ]
+    }
+  }
+}
+
+
+
+--
+# Search and must
+GET /customers/_search?pretty
+{
+  "query": {
+    "bool": {
+    "should": [
+      {"match": {  "street": "ditmas" }},
+      {"match": {  "street": "avenue" }}
+    ]
+    }
+  }
+}
+
+--
+# Search
+GET /customers/_search?pretty
+{
+  "query": {
+    "bool": {
+    "must": [
+      {"match": {  "street": "ditmas" }},
+      {"match": {  "name": "Alejandra" }}
+    ]
+    }
+  }
+}
+
+--
+# Search
+GET /customers/_search?pretty
+{
+  "query": {
+    "bool": {
+    "must": [
+      {"match": {  "street": "ditmas" }},
+      {"match": {  "name": "Alejandra" }}
+    ]
+    }
+  }
+}
+
+
+--
+# Search Term
+GET /customers/_search?pretty
+{
+  "query": {
+    "bool": {
+    "should": [
+      {"term": {  "state": {"value": "california", "boost": 2.0}}},
+      {"term": {
+        "state": {"value": "idaho"}
+      }}
+    ]
+    }
+  }
+}
+
+
+--
+# Filter
+GET /customers/_search?pretty
+{
+  "query": {
+    "bool": {
+      "must": {"match_all": {}},
+      "filter": {
+        "range": {
+          "age": {
+            "gte": 30,
+            "lte": 40
+          }
+        }
+      }
+    }
+  }
+}
+
